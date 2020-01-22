@@ -3,10 +3,7 @@ define mac_profiles_handler::manage(
   $file_source = '',
   $ensure = 'present',
   $type = 'mobileconfig',
-  $method = 'local',
-  $mdmdirector_host = '',
-  $mdmdirector_username = 'mdmdirector',
-  $mdmdirector_password = '',
+  $method = 'local'
 ) {
 
   if $facts['os']['name'] != 'Darwin' {
@@ -16,12 +13,9 @@ define mac_profiles_handler::manage(
   case $method {
     'mdm': {
       mac_profiles_handler::mdm {$name:
-        ensure               => $ensure,
-        file_source          => $file_source,
-        type                 => $type,
-        mdmdirector_host     => $mdmdirector_host,
-        mdmdirector_username => $mdmdirector_username,
-        mdmdirector_password => $mdmdirector_password,
+        ensure      => $ensure,
+        file_source => $file_source,
+        type        => $type
 
       }
     }

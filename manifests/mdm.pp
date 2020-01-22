@@ -2,20 +2,24 @@
 define mac_profiles_handler::mdm (
     $file_source = '',
     $ensure = 'present',
-    $type = 'mobileconfig',
-    $method = 'local',
+    $type = 'template',
     $mdmdirector_host = '',
     $mdmdirector_username = 'mdmdirector',
     $mdmdirector_password = '',
 ) {
-  # get content of desired profile (profile ID and payload)
-  # get current profile out of mdmdirector
 
-  # get supervised state out of mdmdirector - if device is 10.15 and supervised we can just push
+  if $type != 'template' {
+    fail('Only template type is supported with MDM')
+  }
 
-  # if profile is managed (by mdm) we can push
+  $mdmdirector_host = lookup('mac_profiles_handler::mdmdirector_host', String)
+  $mdmdirector_username = lookup('mac_profiles_handler::mdmdirector_username', String)
+  $mdmdirector_password = lookup('mac_profiles_handler::mdmdirector_password', String)
 
-  # if not supervised and not 10.15, attempt a local profile removal
+  $udid = $facts['system_profiler']['hardware_uuid']
 
-  # if profile doesn't exist, push
+  $output = send_mdm_profile($file_source, $udid, $ensure, $mdmdirector_password, $mdmdirector_username, $mdmdirector_host)
+
+  notify { $output:
+  }
 }
