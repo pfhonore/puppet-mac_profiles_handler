@@ -7,23 +7,16 @@ require 'base64'
 
 require 'puppet/util/plist' if Puppet.features.cfpropertylist?
 
-Puppet::Functions.create_function(:'mac_profiles_handler::send_mdm_profile') do
-  dispatch :send_profile do
-    param 'String', :mobileconfig
-    param 'String', :udid
-    param 'String', :ensure
-    param 'String', :mdmdirector_password
-    param 'String', :mdmdirector_username
-    param 'String', :mdmdirector_host
-    return_type 'Hash'
-  end
+Puppet::Functions.create_function(:send_mdm_profile) do
 
-  def send_profile(mobileconfig, udid, ensure, mdmdirector_password, mdmdirector_username, mdmdirector_host)
+  def send_mdm_profile(mobileconfig, udid, ensure_profile, mdmdirector_password, mdmdirector_username, mdmdirector_host, mdmdirector_path)
+
 
     enc = Base64.encode64(mobileconfig)
 
     uri = URI.parse(mdmdirector_host)
-    if ensure == "absent" do
+    uri += mdmdirector_path
+    if ensure_profile == "absent"
       request = Net::HTTP::Delete.new(uri.path)
       # also need to parse out the payload id from the plist
       plist = Puppet::Util::Plist.parse_plist(mobileconfig)
@@ -41,7 +34,8 @@ Puppet::Functions.create_function(:'mac_profiles_handler::send_mdm_profile') do
       request.body = JSON.dump({
         "udids" => [udid],
         "profiles" => [enc],
-        "metadata" => true
+        "metadata" => true,
+        "push_now" => true
       })
     end
     request.basic_auth(mdmdirector_username, mdmdirector_password)
@@ -57,7 +51,17 @@ Puppet::Functions.create_function(:'mac_profiles_handler::send_mdm_profile') do
       http.request(request)
     end
 
-    JSON.parse(request.body)
+    # device = JSON.parse(response.body)
+    # if device["profile_metadata"][0]["status"] == "pushed" or device["profile_metadata"][0]["status"] == "changed"
+    #   state = "changed"
+    # else
+    #   state = device["profile_metadata"][0]["status"]
+    # end
 
+    # for profilelist
+    # output = {
+    #   "state" => state
+    # }
+    JSON.parse(response.body)
   end
 end
