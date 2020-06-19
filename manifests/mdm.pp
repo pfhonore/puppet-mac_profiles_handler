@@ -38,8 +38,7 @@ define mac_profiles_handler::mdm (
       notify{"${name} was pushed to ${udid}": }
     }
 
-  $plist = plist_to_hash($file_source)
-  $payload_identifier = $plist['PayloadIdentifier']
+  $payload_identifier = $name
 
   if $facts['mdmenrollment']['dep_enrolled'] == false {
     if $ensure == 'absent' and has_key($profiles, $payload_identifier){
