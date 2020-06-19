@@ -24,8 +24,8 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       request.body = JSON.dump({
         "udids" => [udid],
         "profiles" => [{
-          "uuid" => plist["PayloadIdentifier"],
-          "payload_identifier" => plist["PayloadUUID"]
+          "payload_identifier" => plist["PayloadIdentifier"],
+          "uuid" => plist["PayloadUUID"]
         }],
         "metadata" => true
       })
@@ -44,8 +44,6 @@ Puppet::Functions.create_function(:send_mdm_profile) do
     req_options = {
       use_ssl: uri.scheme == "https",
     }
-
-
 
     response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
       http.request(request)

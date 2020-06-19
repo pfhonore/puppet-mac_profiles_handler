@@ -1,6 +1,6 @@
 # mdmemrollment.rb
 
-Facter.add(:mdmemrollment) do
+Facter.add(:mdmenrollment) do
   confine osfamily: 'Darwin'
   setcode do
     output = {}

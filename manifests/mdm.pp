@@ -9,7 +9,7 @@ define mac_profiles_handler::mdm (
     fail('Only template type is supported with MDM.')
   }
 
-  if $facts['mdmenrollemnt']['mdm_enrolled'] == false {
+  if $facts['mdmenrollment']['mdm_enrolled'] == false {
     fail('Device is not enrolled in MDM.')
   }
 
@@ -33,18 +33,31 @@ define mac_profiles_handler::mdm (
     $mdmdirector_path
     )
 
+    $status = $output[0]['profile_metadata'][0]['status']
+    if $status == 'pushed' {
+      notify{"${name} was pushed to ${udid}": }
+    }
+
+  $plist = plist_to_hash($file_source)
+  $payload_identifier = $plist['PayloadIdentifier']
 
   if $facts['mdmenrollment']['dep_enrolled'] == false {
-    $plist = plist_to_hash($file_source)
-
-    if has_key($profiles, $plist['PayloadIdentifier']) {
-      $new_hash = $output['profile_metadata'][0]['hashed_payload_uuid']
-
-      if $profiles[$plist['PayloadIdentifier']]['uuid'] != $new_hash {
-        exec { "remove ${plist['PayloadIdentifier']['uuid']}":
-            command => "/usr/bin/profiles -R -p ${plist['PayloadIdentifier']}",
+    if $ensure == 'absent' and has_key($profiles, $payload_identifier){
+      exec { "remove ${payload_identifier}":
+          command => "/usr/bin/profiles -R -p ${payload_identifier}",
+          returns => [0,1]
+      }
+    } else {
+      if has_key($profiles, $payload_identifier) {
+        $new_hash = $output[0]['profile_metadata'][0]['hashed_payload_uuid']
+        if $profiles[$payload_identifier]['uuid'] != $new_hash {
+          exec { "remove ${payload_identifier}":
+              command => "/usr/bin/profiles -R -p ${payload_identifier}",
+              returns => [0,1]
+          }
         }
       }
-    }
   }
+    }
+
 }

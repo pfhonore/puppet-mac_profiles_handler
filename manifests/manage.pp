@@ -3,14 +3,20 @@ define mac_profiles_handler::manage(
   $file_source = '',
   $ensure = 'present',
   $type = 'mobileconfig',
-  $method = 'local'
+  $method = ''
 ) {
 
   if $facts['os']['name'] != 'Darwin' {
     fail('The mobileconfig::manage resource type is only supported on macOS')
   }
 
-  case $method {
+  if $method == '' {
+    $processed_method = lookup('mac_profiles_handler::method', String, 'first', 'local')
+  } else {
+    $processed_method = $method
+  }
+
+  case $processed_method {
     'mdm': {
       mac_profiles_handler::mdm {$name:
         ensure      => $ensure,
