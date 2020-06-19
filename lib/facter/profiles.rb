@@ -1,20 +1,15 @@
-require 'puppet/util/plist'
-require 'time'
-require 'tmpdir'
-
 Facter.add(:profiles) do
   confine kernel: 'Darwin'
   setcode do
+    
+    require 'puppet/util/plist'
+    require 'time'
+
     profiles = {}
 
     if Facter.value(:os)['release']['major'].to_i >= 12
 
-      path = Dir.mktmpdir + '/profiles.plist'
-
-      # why????
-      Facter::Util::Resolution.exec(['/usr/bin/profiles', '-C', '-o', path].join(' '))
-
-      plist = Puppet::Util::Plist.read_plist_file(path)
+      plist = Puppet::Util::Plist.parse_plist(Facter::Util::Resolution.exec(['/usr/bin/profiles', '-C', '-o', 'stdout-xml'].join(' ')))
 
       if plist.key?('_computerlevel')
         for item in plist['_computerlevel']
