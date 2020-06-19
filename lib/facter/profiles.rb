@@ -35,7 +35,7 @@ Facter.add(:profiles) do
               'identifier' => pl['PayloadIdentifier'],
               'uuid' => pl['PayloadUUID'],
               # commented out for now because its not super useful.
-              'content' => pl['PayloadContent'],
+              # 'content' => pl['PayloadContent'],
             }
           end
         end
