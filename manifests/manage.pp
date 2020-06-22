@@ -3,52 +3,38 @@ define mac_profiles_handler::manage(
   $file_source = '',
   $ensure = 'present',
   $type = 'mobileconfig',
+  $method = ''
 ) {
 
   if $facts['os']['name'] != 'Darwin' {
     fail('The mobileconfig::manage resource type is only supported on macOS')
   }
 
-  case $ensure {
-    'absent': {
-      profile_manager { $name:
-        ensure    => $ensure,
+  if $method == '' {
+    $processed_method = lookup('mac_profiles_handler::method', String, 'first', 'local')
+  } else {
+    $processed_method = $method
+  }
+
+  case $processed_method {
+    'mdm': {
+      mac_profiles_handler::mdm {$name:
+        ensure      => $ensure,
+        file_source => $file_source,
+        type        => $type
+
       }
     }
     default: {
-      File {
-        owner  => 'root',
-        group  => 'wheel',
-        mode   => '0700',
-      }
-
-      if ! defined(File["${facts['puppet_vardir']}/mobileconfigs"]) {
-        file { "${facts['puppet_vardir']}/mobileconfigs":
-          ensure => directory,
-        }
-      }
-      case $type {
-        'template': {
-          file { "${facts['puppet_vardir']}/mobileconfigs/${name}":
-            ensure  => file,
-            content => $file_source,
-          }
-        }
-        default: {
-          file { "${facts['puppet_vardir']}/mobileconfigs/${name}":
-            ensure => file,
-            source => $file_source,
-          }
-        }
-      }
-      profile_manager { $name:
-        ensure    => $ensure,
-        profile   => "${facts['puppet_vardir']}/mobileconfigs/${name}",
-        require   => File["${facts['puppet_vardir']}/mobileconfigs/${name}"],
-        subscribe => File["${facts['puppet_vardir']}/mobileconfigs/${name}"],
+      mac_profiles_handler::local{$name:
+        ensure      => $ensure,
+        file_source => $file_source,
+        type        => $type,
       }
     }
   }
+
+
 
 }
 
