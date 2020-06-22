@@ -37,6 +37,30 @@ mac_profiles_handler::manage { '00000000-0000-0000-A000-4A414D460003':
 
 You must pass the profilers identifier as your namevar, ensure accepts present or absent and file_source behaves the same way source behaves for file.
 
+### Profile installation via MicroMDM and MDMDirector
+
+Profiles can be sent via MDMDirector and compatible tools. Add your configuration to Hiera (`eyaml` recommended for secrets). Only template style profiles are supported.
+
+<pre>
+# MDMDirector information
+mac_profiles_handler::mdmdirector_host: https://mdmdirector.company.com
+mac_profiles_handler::mdmdirector_password: secret
+mac_profiles_handler::mdmdirector_username: mdmdirector
+# Install all profiles via MDM
+mac_profiles_handler::method: mdm
+</pre>
+
+Or you can install only some profiles via MDM
+
+<pre>
+mac_profiles_handler::manage { 'com.puppetlabs.myprofile':
+  ensure  => present,
+  file_source => template('mymodule/com.puppetlabs.myprofile.erb'),
+  type => 'template',
+  method => 'mdm' # or set this to 'local'
+}
+</pre>
+
 ## Dependencies
 
 - [puppetlabs/stdlib >= 2.3.1](https://forge.puppetlabs.com/puppetlabs/stdlib)
