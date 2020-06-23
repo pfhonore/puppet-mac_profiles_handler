@@ -27,8 +27,8 @@ define mac_profiles_handler::mdm (
     $file_source,
     $udid,
     $ensure,
-    $mdmdirector_password,
     $mdmdirector_username,
+    $mdmdirector_password,
     $mdmdirector_host,
     $mdmdirector_path
     )
