@@ -20,6 +20,6 @@ Puppet::Type.type(:local_error).provide :macos do
 
   def error
     message = resource["message"]
-    raise Puppet::Error, message
+    raise Exception, message
   end
 end
