@@ -6,11 +6,11 @@ define mac_profiles_handler::mdm (
 ) {
 
   if $type != 'template' {
-    fail('Only template type is supported with MDM.')
+    err('Only template type is supported with MDM.')
   }
 
   if $facts['mdmenrollment']['mdm_enrolled'] == false {
-    fail('Device is not enrolled in MDM.')
+    err('Device is not enrolled in MDM.')
   }
 
   $profiles = $facts['profiles']
