@@ -6,11 +6,11 @@ Puppet::Type.type(:local_error).provide :macos do
   defaultfor operatingsystem: :darwin
 
   def create
-    error()
+    error
   end
 
   def destroy
-    error()
+    error
   end
 
   def exists?
