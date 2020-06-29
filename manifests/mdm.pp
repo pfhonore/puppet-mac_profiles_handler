@@ -18,7 +18,7 @@ define mac_profiles_handler::mdm (
     }
   }
 
-  if $enrolled and $type != 'template' {
+  if $enrolled and $type == 'template' {
 
     $profiles = $facts['profiles']
 
