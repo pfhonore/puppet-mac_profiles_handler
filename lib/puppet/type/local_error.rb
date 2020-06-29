@@ -10,4 +10,7 @@ Puppet::Type.newtype(:local_error) do
   end
 
   newparam(:message, namevar: true)
+  newparam(:ensure) do
+    defaultto "present"
+  end
 end
