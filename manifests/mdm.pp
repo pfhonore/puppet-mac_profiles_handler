@@ -7,14 +7,18 @@ define mac_profiles_handler::mdm (
 
   $enrolled = $facts['mdmenrollment']['mdm_enrolled']
   if $type != 'template' {
-    local_error{ 'Only template type is supported with MDM.':}
+    notify{ 'Only template type is supported with MDM.':
+      loglevel => 'err',
+    }
   }
 
   if $enrolled == false {
-    local_error{'Device is not enrolled in MDM.':}
+    notify {'Device is not enrolled in MDM.':
+      loglevel => 'err',
+    }
   }
 
-  if $templateok and $type != 'template' {
+  if $enrolled and $type != 'template' {
 
     $profiles = $facts['profiles']
 
