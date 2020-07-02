@@ -11,7 +11,7 @@ define mac_profiles_handler::mdm (
 
   if $type != 'template' {
     if 'puppet:///modules/' in $file_source {
-      $munged_source = inline_template('<%= @file_source[17..-1] %>')
+      $munged_source = inline_template('<%= @file_source[18..-1] %>')
       notify{$munged_source: }
       $input = file($munged_source)
     }
