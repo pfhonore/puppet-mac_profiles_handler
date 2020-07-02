@@ -5,15 +5,18 @@ define mac_profiles_handler::mdm (
     $type = 'template',
 ) {
 
+  $payload_identifier = $name
+
   $enrolled = $facts['mdmenrollment']['mdm_enrolled']
+
   if $type != 'template' {
-    notify{ 'Only template type is supported with MDM.':
-      loglevel => 'err',
-    }
+    $input = file($file_source)
+  } else {
+    input = $file_source
   }
 
   if $enrolled == false {
-    notify {'Device is not enrolled in MDM.':
+    notify {"Device is not enrolled in MDM. ${payload_identifier}":
       loglevel => 'err',
     }
   }
@@ -31,7 +34,7 @@ define mac_profiles_handler::mdm (
     $udid = $facts['system_profiler']['hardware_uuid']
 
     $output = send_mdm_profile(
-      $file_source,
+      $input,
       $udid,
       $ensure,
       $mdmdirector_username,
@@ -44,8 +47,6 @@ define mac_profiles_handler::mdm (
       if $status == 'pushed' {
         notify{"${name} was pushed to ${udid}": }
       }
-
-    $payload_identifier = $name
 
     if $facts['mdmenrollment']['dep_enrolled'] == false {
       if $ensure == 'absent' and has_key($profiles, $payload_identifier){
