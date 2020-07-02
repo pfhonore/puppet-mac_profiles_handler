@@ -12,7 +12,7 @@ define mac_profiles_handler::mdm (
   if $type != 'template' {
     $input = file($file_source)
   } else {
-    input = $file_source
+    $input = $file_source
   }
 
   if $enrolled == false {
