@@ -10,7 +10,7 @@ define mac_profiles_handler::mdm (
   $enrolled = $facts['mdmenrollment']['mdm_enrolled']
 
   if $type != 'template' {
-    $munged_source = regsubst($file_source, 'puppet:///modules/', '', 'G')
+    $munged_source = regsubst($file_source, 'puppet:///modules/', '')
     notify{$munged_source: }
     $input = file($munged_source)
   } else {
