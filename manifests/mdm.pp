@@ -11,6 +11,7 @@ define mac_profiles_handler::mdm (
 
   if $type != 'template' {
     $munged_source = regsubst($file_source, 'puppet:///modules/', '', 'G')
+    notify{$munged_source: }
     $input = file($munged_source)
   } else {
     $input = $file_source
