@@ -10,9 +10,14 @@ define mac_profiles_handler::mdm (
   $enrolled = $facts['mdmenrollment']['mdm_enrolled']
 
   if $type != 'template' {
-    $munged_source = regsubst($file_source, 'puppet:///modules/', '')
-    notify{$munged_source: }
-    $input = file($munged_source)
+    if 'puppet:///modules/' in $file_source {
+      $munged_source = inline_template('<%= @file_source[17..-1] %>')
+      notify{$munged_source: }
+      $input = file($munged_source)
+    }
+    else {
+      $input = $file_source
+    }
   } else {
     $input = $file_source
   }
