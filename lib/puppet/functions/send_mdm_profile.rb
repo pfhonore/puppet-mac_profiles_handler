@@ -9,7 +9,7 @@ require "base64"
 require "puppet/util/plist" if Puppet.features.cfpropertylist?
 
 Puppet::Functions.create_function(:send_mdm_profile) do
-  def send_mdm_profile(mobileconfig, udid, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile")
+  def send_mdm_profile(mobileconfig, udid, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout=5)
     output = {}
     output['error'] = false
     output['error_message'] = ''
@@ -51,7 +51,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
     end
     begin
       request.basic_auth(mdmdirector_username, mdmdirector_password)
-      http.read_timeout = 5
+      http.read_timeout = timeout
       response = http.request(request)
     rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
       Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
