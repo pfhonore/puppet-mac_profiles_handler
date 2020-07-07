@@ -83,6 +83,4 @@ define mac_profiles_handler::mdm (
     }
   }
 
-
-
 }
