@@ -50,29 +50,39 @@ define mac_profiles_handler::mdm (
       $mdmdirector_path
       )
 
-      $status = $output[0]['profile_metadata'][0]['status']
-      if $status == 'pushed' {
-        notify{"${name} was pushed to ${udid}": }
-      }
-
-    if $facts['mdmenrollment']['dep_enrolled'] == false {
-      if $ensure == 'absent' and has_key($profiles, $payload_identifier){
-        exec { "remove ${payload_identifier}":
-            command => "/usr/bin/profiles -R -p ${payload_identifier}",
-            returns => [0,1]
+      $error = $output['error']
+      $error_message = $output['error_message']
+      if $error {
+        notify{"Error pushing ${name}: ${error_message}":
+          loglevel => 'err',
         }
       } else {
-        if has_key($profiles, $payload_identifier) {
-          $new_hash = $output[0]['profile_metadata'][0]['hashed_payload_uuid']
-          if $profiles[$payload_identifier]['uuid'] != $new_hash {
-            exec { "remove ${payload_identifier}":
-                command => "/usr/bin/profiles -R -p ${payload_identifier}",
-                returns => [0,1]
+        $status = $output['output'][0]['profile_metadata'][0]['status']
+        if $status == 'pushed' {
+          notify{"${name} was pushed to ${udid}": }
+        }
+
+      if $facts['mdmenrollment']['dep_enrolled'] == false {
+        if $ensure == 'absent' and has_key($profiles, $payload_identifier){
+          exec { "remove ${payload_identifier}":
+              command => "/usr/bin/profiles -R -p ${payload_identifier}",
+              returns => [0,1]
+          }
+        } else {
+          if has_key($profiles, $payload_identifier){
+            $new_hash = $output['output'][0]['profile_metadata'][0]['hashed_payload_uuid']
+            if $profiles[$payload_identifier]['uuid'] != $new_hash {
+              exec { "remove ${payload_identifier}":
+                  command => "/usr/bin/profiles -R -p ${payload_identifier}",
+                  returns => [0,1]
+              }
             }
           }
         }
       }
     }
   }
+
+
 
 }

@@ -10,6 +10,9 @@ require "puppet/util/plist" if Puppet.features.cfpropertylist?
 
 Puppet::Functions.create_function(:send_mdm_profile) do
   def send_mdm_profile(mobileconfig, udid, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile")
+    output = {}
+    output['error'] = false
+    output['error_message'] = ''
     enc = Base64.encode64(mobileconfig)
     unless mdmdirector_path.start_with?("/")
       mdmdirector_path = "/" + mdmdirector_path
@@ -46,11 +49,19 @@ Puppet::Functions.create_function(:send_mdm_profile) do
     else
       http.use_ssl = false
     end
-    request.basic_auth(mdmdirector_username, mdmdirector_password)
+    begin
+      request.basic_auth(mdmdirector_username, mdmdirector_password)
+      http.read_timeout = 5
+      response = http.request(request)
+    rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+      Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+      output['error'] = true
+      output['error_message'] = e
+    end
 
-    response = http.request(request)
+    # Puppet.debug(response)
 
-    Puppet.debug(response)
-    JSON.parse(response.body)
+    output['output'] = JSON.parse(response.body)
+    output
   end
 end
