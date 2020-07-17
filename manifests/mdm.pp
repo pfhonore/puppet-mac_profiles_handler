@@ -43,11 +43,12 @@ define mac_profiles_handler::mdm (
     $output = send_mdm_profile(
       $input,
       $udid,
+      $payload_identifier,
       $ensure,
       $mdmdirector_username,
       $mdmdirector_password,
       $mdmdirector_host,
-      $mdmdirector_path
+      $mdmdirector_path,
       )
 
       $error = $output['error']

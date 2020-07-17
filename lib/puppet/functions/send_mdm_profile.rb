@@ -9,7 +9,7 @@ require "base64"
 require "puppet/util/plist" if Puppet.features.cfpropertylist?
 
 Puppet::Functions.create_function(:send_mdm_profile) do
-  def send_mdm_profile(mobileconfig, udid, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout=5)
+  def send_mdm_profile(mobileconfig, udid, payloadidentifier, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout=5)
     output = {}
     output['error'] = false
     output['error_message'] = ''
@@ -23,12 +23,12 @@ Puppet::Functions.create_function(:send_mdm_profile) do
     if ensure_profile == "absent"
       request = Net::HTTP::Delete.new(uri.request_uri)
       # also need to parse out the payload id from the plist
-      plist = Puppet::Util::Plist.parse_plist(mobileconfig)
+      #plist = Puppet::Util::Plist.parse_plist(mobileconfig)
 
       request.body = JSON.dump({
         "udids" => [udid],
         "profiles" => [{
-          "payload_identifier" => plist["PayloadIdentifier"],
+          "payload_identifier" => $payloadidentifier,
           # "uuid" => plist["PayloadUUID"],
         }],
         "metadata" => true,
