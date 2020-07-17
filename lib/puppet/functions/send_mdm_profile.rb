@@ -29,7 +29,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
         "udids" => [udid],
         "profiles" => [{
           "payload_identifier" => plist["PayloadIdentifier"],
-          "uuid" => plist["PayloadUUID"],
+          # "uuid" => plist["PayloadUUID"],
         }],
         "metadata" => true,
       })
