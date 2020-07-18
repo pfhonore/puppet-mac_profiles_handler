@@ -1,8 +1,8 @@
 # Installs a profile with MDM
 define mac_profiles_handler::mdm (
-    $file_source = '',
-    $ensure = 'present',
-    $type = 'template',
+    $file_source,
+    $ensure,
+    $type,
 ) {
 
   $payload_identifier = $name
