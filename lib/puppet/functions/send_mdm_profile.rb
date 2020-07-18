@@ -32,6 +32,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
           # "uuid" => plist["PayloadUUID"],
         }],
         "metadata" => true,
+        "push_now" => true,
       })
     else
       request = Net::HTTP::Post.new(uri.request_uri)
