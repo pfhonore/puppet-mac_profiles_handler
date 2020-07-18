@@ -28,7 +28,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       request.body = JSON.dump({
         "udids" => [udid],
         "profiles" => [{
-          "payload_identifier" => $payloadidentifier,
+          "payload_identifier" => payloadidentifier,
         }],
         "metadata" => true,
         "push_now" => true,
