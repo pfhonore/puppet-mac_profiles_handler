@@ -9,10 +9,10 @@ require "base64"
 require "puppet/util/plist" if Puppet.features.cfpropertylist?
 
 Puppet::Functions.create_function(:send_mdm_profile) do
-  def send_mdm_profile(mobileconfig, udid, payloadidentifier, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout=5)
+  def send_mdm_profile(mobileconfig, udid, payloadidentifier, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout = 5)
     output = {}
-    output['error'] = false
-    output['error_message'] = ''
+    output["error"] = false
+    output["error_message"] = ""
     enc = Base64.encode64(mobileconfig)
     unless mdmdirector_path.start_with?("/")
       mdmdirector_path = "/" + mdmdirector_path
@@ -29,7 +29,6 @@ Puppet::Functions.create_function(:send_mdm_profile) do
         "udids" => [udid],
         "profiles" => [{
           "payload_identifier" => $payloadidentifier,
-          # "uuid" => plist["PayloadUUID"],
         }],
         "metadata" => true,
         "push_now" => true,
@@ -55,17 +54,17 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       http.read_timeout = timeout
       response = http.request(request)
     rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
-      Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
-      output['error'] = true
-      output['error_message'] = e
+           Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+      output["error"] = true
+      output["error_message"] = e
     end
 
     # Puppet.debug(response)
     begin
-      output['output'] = JSON.parse(response.body)
+      output["output"] = JSON.parse(response.body)
     rescue JSON::ParserError => e
-      output['error'] = true
-      output['error_message'] = e
+      output["error"] = true
+      output["error_message"] = e
     end
     output
   end

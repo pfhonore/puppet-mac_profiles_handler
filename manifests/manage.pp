@@ -22,7 +22,6 @@ define mac_profiles_handler::manage(
         ensure      => $ensure,
         file_source => $file_source,
         type        => $type
-
       }
     }
     default: {

@@ -1,21 +1,21 @@
-require 'puppet/util/plist'
+require "puppet/util/plist"
 
 Puppet::Type.type(:profile_manager).provide :macos do
-  desc 'Provides management of mobileconfig profiles on macOS.'
+  desc "Provides management of mobileconfig profiles on macOS."
 
   confine operatingsystem: :darwin
 
   defaultfor operatingsystem: :darwin
 
-  commands profilescmd: '/usr/bin/profiles'
+  commands profilescmd: "/usr/bin/profiles"
 
   def create
-    profilescmd('-I', '-F', resource[:profile])
+    profilescmd("-I", "-F", resource[:profile])
     writereceipt
   end
 
   def destroy
-    profilescmd('-R', '-p', resource[:name])
+    profilescmd("-R", "-p", resource[:name])
   end
 
   def exists?
@@ -28,7 +28,7 @@ Puppet::Type.type(:profile_manager).provide :macos do
         return true
       else
         begin
-          return state['install_date'].to_time == getreceipts[resource[:name]]['install_date']
+          return state["install_date"].to_time == getreceipts[resource[:name]]["install_date"]
         rescue NoMethodError
           # no matching receipt
           return false
@@ -41,7 +41,7 @@ Puppet::Type.type(:profile_manager).provide :macos do
 
   def getreceipts
     begin
-      receipts = Puppet::Util::Plist.read_plist_file(Puppet[:vardir] + '/mobileconfigs/receipts.plist')
+      receipts = Puppet::Util::Plist.read_plist_file(Puppet[:vardir] + "/mobileconfigs/receipts.plist")
     rescue IOError, Errno::ENOENT
       receipts = {}
     end
@@ -54,24 +54,23 @@ Puppet::Type.type(:profile_manager).provide :macos do
     # code from the fact but needs to re-run immediately.
     receipts = getreceipts
 
-    receipts[resource[:name]] = { 'install_date' => getinstalledstate['install_date'] }
+    receipts[resource[:name]] = { "install_date" => getinstalledstate["install_date"] }
 
-    Puppet::Util::Plist.write_plist_file(receipts, Puppet[:vardir] + '/mobileconfigs/receipts.plist')
+    Puppet::Util::Plist.write_plist_file(receipts, Puppet[:vardir] + "/mobileconfigs/receipts.plist")
   end
 
   def getinstalledstate
+    plist = Puppet::Util::Plist.parse_plist(Puppet::Util::Execution.execute(["/usr/bin/profiles", "-C", "-o", "stdout-xml"]))
 
-    plist = Puppet::Util::Plist.parse_plist(Puppet::Util::Execution.execute(['/usr/bin/profiles', '-C', '-o', 'stdout-xml']))
-
-    if plist.key?('_computerlevel')
-      for item in plist['_computerlevel']
-        if item['ProfileIdentifier'] == resource[:name]
+    if plist.key?("_computerlevel")
+      for item in plist["_computerlevel"]
+        if item["ProfileIdentifier"] == resource[:name]
           return {
-            'identifier' => item['ProfileIdentifier'],
-            'display_name' => item['ProfileDisplayName'],
-            'uuid' => item['ProfileUUID'],
-            'install_date' => DateTime.parse(item['ProfileInstallDate'])
-          }
+                   "identifier" => item["ProfileIdentifier"],
+                   "display_name" => item["ProfileDisplayName"],
+                   "uuid" => item["ProfileUUID"],
+                   "install_date" => DateTime.parse(item["ProfileInstallDate"]),
+                 }
         end
       end
     end
