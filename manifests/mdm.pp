@@ -58,6 +58,7 @@ define mac_profiles_handler::mdm (
           loglevel => 'err',
         }
       } else {
+        # notify{String($output): }
         $status = $output['output'][0]['profile_metadata'][0]['status']
         if $status == 'pushed' {
           notify{"${name} was pushed to ${udid}": }
