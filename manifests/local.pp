@@ -4,6 +4,10 @@ define mac_profiles_handler::local(
   $ensure = 'present',
   $type = 'mobileconfig'
 ) {
+
+  if versioncmp($facts['os']['release']['major'],'20') != -1 {
+    fail('Local profile installation is non-functional on macOS 11. Please use $method = \'mdm.\'')
+  }
     case $ensure {
     'absent': {
       profile_manager { $name:
