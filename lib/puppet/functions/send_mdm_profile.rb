@@ -59,7 +59,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       output["error_message"] = e
     end
 
-    Puppet.debug(response)
+    # Puppet.debug(response)
     begin
       output["output"] = JSON.parse(response.body)
     rescue JSON::ParserError => e
