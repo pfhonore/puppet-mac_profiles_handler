@@ -53,8 +53,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       request.basic_auth(mdmdirector_username, mdmdirector_password)
       http.read_timeout = timeout
       response = http.request(request)
-    rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
-           Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+    rescue => e
       output["error"] = true
       output["error_message"] = e
     end
@@ -62,7 +61,7 @@ Puppet::Functions.create_function(:send_mdm_profile) do
     # Puppet.debug(response)
     begin
       output["output"] = JSON.parse(response.body)
-    rescue JSON::ParserError => e
+    rescue => e
       output["error"] = true
       output["error_message"] = e
     end
