@@ -87,6 +87,10 @@ define mac_profiles_handler::mdm (
             }
           }
         }
+        } else {
+          notify{"MDMDirector did not return expected output for ${name}":
+            loglevel => 'err',
+          }
         }
 
     }
