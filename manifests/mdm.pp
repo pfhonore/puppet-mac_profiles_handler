@@ -58,34 +58,37 @@ define mac_profiles_handler::mdm (
           loglevel => 'err',
         }
       } else {
-        notice(String($output))
-        $status = $output['output'][0]['profile_metadata'][0]['status']
-        if $status == 'pushed' {
-          notify{"${name} was pushed to ${udid}": }
-        }
-
-        if $status == 'deleted' {
-          notify{"${name} was deleted from ${udid}": }
-        }
-
-      if $facts['mdmenrollment']['dep_enrolled'] == false {
-        if $ensure == 'absent' and has_key($profiles, $payload_identifier){
-          exec { "remove ${payload_identifier}":
-              command => "/usr/bin/profiles -R -p ${payload_identifier}",
-              returns => [0,1]
+        # Does mdmdirector know about this profile?
+        if $output['output'][0]['profile_metadata'] != undef {
+          $status = $output['output'][0]['profile_metadata'][0]['status']
+          if $status == 'pushed' {
+            notify{"${name} was pushed to ${udid}": }
           }
-        } else {
-          if has_key($profiles, $payload_identifier){
-            $new_hash = $output['output'][0]['profile_metadata'][0]['hashed_payload_uuid']
-            if $profiles[$payload_identifier]['uuid'] != $new_hash {
-              exec { "remove ${payload_identifier}":
-                  command => "/usr/bin/profiles -R -p ${payload_identifier}",
-                  returns => [0,1]
+
+          if $status == 'deleted' {
+            notify{"${name} was deleted from ${udid}": }
+          }
+
+        if $facts['mdmenrollment']['dep_enrolled'] == false {
+          if $ensure == 'absent' and has_key($profiles, $payload_identifier){
+            exec { "remove ${payload_identifier}":
+                command => "/usr/bin/profiles -R -p ${payload_identifier}",
+                returns => [0,1]
+            }
+          } else {
+            if has_key($profiles, $payload_identifier){
+              $new_hash = $output['output'][0]['profile_metadata'][0]['hashed_payload_uuid']
+              if $profiles[$payload_identifier]['uuid'] != $new_hash {
+                exec { "remove ${payload_identifier}":
+                    command => "/usr/bin/profiles -R -p ${payload_identifier}",
+                    returns => [0,1]
+                }
               }
             }
           }
         }
-      }
+        }
+
     }
   }
 
