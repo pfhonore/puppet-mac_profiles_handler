@@ -9,7 +9,7 @@ require "base64"
 require "puppet/util/plist" if Puppet.features.cfpropertylist?
 
 Puppet::Functions.create_function(:send_mdm_profile) do
-  def send_mdm_profile(mobileconfig, udid, payloadidentifier, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout = 5)
+  def send_mdm_profile(mobileconfig, udid, payloadidentifier, ensure_profile, mdmdirector_username, mdmdirector_password, mdmdirector_host, mdmdirector_path = "/profile", timeout = 10)
     output = {}
     output["error"] = false
     output["error_message"] = ""
@@ -58,9 +58,25 @@ Puppet::Functions.create_function(:send_mdm_profile) do
       output["error_message"] = e
     end
 
-    # Puppet.debug(response)
+    Puppet.debug(response)
     begin
-      output["output"] = JSON.parse(response.body)
+      case response
+      when Net::HTTPSuccess
+        output["output"] = JSON.parse response.body
+      when Net::HTTPUnauthorized
+        output["error_message"] = "#{response.code} #{response.message}: username and password set and correct?"
+        output["error"] = true
+      when Net::HTTPServerError
+        output["error_message"] = "#{response.code} #{response.message}: try again later?"
+        output["error"] = true
+      else
+        unless response.nil?
+          output["error_message"] = "#{response.code} #{response.message}"
+        else
+          output["error_message"] = response.code
+        end
+        output["error"] = true
+    end
     rescue => e
       output["error"] = true
       output["error_message"] = e
